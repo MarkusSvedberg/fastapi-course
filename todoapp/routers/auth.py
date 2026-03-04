@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import JWTError, jwt
 
 from todoapp.models import Users
-from todoapp.database import SessionLocal
+from todoapp.database import get_db
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -32,13 +32,6 @@ class CreateUserRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 

@@ -5,17 +5,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from todoapp.models import Users
-from todoapp.database import SessionLocal
+from todoapp.database import get_db
 from todoapp.routers.auth import get_current_user, bcrypt_context
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
