@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from starlette import status
 from sqlalchemy.orm import Session
@@ -19,6 +20,7 @@ ALGORITHM = "HS256"
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
+templates = Jinja2Templates(directory="TodoApp/templates")
 
 class CreateUserRequest(BaseModel):
     username: str
@@ -35,6 +37,16 @@ class Token(BaseModel):
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+### Pages ###
+@router.get("/login-page")
+def render_login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@router.get("/register-page")
+def render_register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+### Endpoints ###
 def authenticate_user(username: str, password: str, db: db_dependency) -> Optional[Users]:
     user = db.query(Users).filter(Users.username == username).first()
     if not user:
